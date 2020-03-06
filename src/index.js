@@ -140,15 +140,44 @@ class App extends React.Component {
 
     return (
       <div>
-        <input onChange={e => this.setState({ searchVal: e.target.value })} />
-        <br />
-        {output1.map(x => {
-          return <span key={x.name}>{x.name} </span>;
-        })}
-        <br /> <h2>T2</h2>
-        {output2.map((x, idx) => {
-          return <span key={idx}>{x.name} </span>;
-        })}
+        <div class="row">
+          <input onChange={e => this.setState({ searchVal: e.target.value })} />
+          <br />
+          {output1.map(x => {
+            return <span key={x.name}>{x.name} </span>;
+          })}
+          <br />
+          {output2.map((x, idx) => {
+            if (x.name != "No Results!") {
+              return (
+                <div class="card col s12 m5">
+                  <div class="card-image waves-effect waves-block waves-light">
+                    <img
+                      class="activator"
+                      src="https://materializecss.com/images/office.jpg"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <span class="card-title activator grey-text text-darken-4">
+                      <span key={idx}>{x.name} </span>
+                      <i class="material-icons right">more_vert</i>
+                    </span>
+                  </div>
+                  <div class="card-reveal">
+                    <span class="card-title grey-text text-darken-4">
+                      {x.name}
+                      <i class="material-icons right">close</i>
+                    </span>
+
+                    {x.ingredients.map((y, idx) => {
+                      return <li>{y}</li>;
+                    })}
+                  </div>
+                </div>
+              );
+            }
+          })}
+        </div>
       </div>
     );
   }
