@@ -3,6 +3,73 @@ import { render } from "react-dom";
 import _ from "lodash/fp";
 import Fuse from "fuse.js";
 
+// User R.assoc and R.over to get nested data
+const data = [
+  {
+    name: "Chinese",
+    recipes: [
+      {
+        name: "Shanghai Noodle Soup",
+        ingredients: [
+          "noodles",
+          "white pepper",
+          "shrimp",
+          "pork",
+          "bamboo shoots"
+        ]
+      },
+      {
+        name: "Twice Cooked Pork",
+        ingredients: ["pork", "black bean sauce"]
+      },
+      {
+        name: "Mapo Tofu",
+        ingredients: ["tofu", "black bean sauce", "pork"]
+      }
+    ]
+  },
+  {
+    name: "Korean",
+    recipes: [
+      {
+        name: "Kimchi Fried Rice",
+        ingredients: ["kimchi", "rice", "egg", "spam", "corn", "peas"]
+      },
+      {
+        name: "Army Stew",
+        ingredients: ["kimchi", "rice", "egg", "spam", "corn", "peas"]
+      }
+    ]
+  },
+  {
+    name: "Italian",
+    recipes: [
+      {
+        name: "Pasta",
+        ingredients: ["ipod", "iphone", "apple"]
+      }
+    ]
+  },
+  {
+    name: "Mediterranean",
+    recipes: [
+      {
+        name: "Green",
+        ingredients: ["paiting", "nature", "rain"]
+      }
+    ]
+  },
+  {
+    name: "American",
+    recipes: [
+      {
+        name: "Fennel Crusted Lamb",
+        ingredients: ["lamb", "fennel", "parsley", "parmesan"]
+      }
+    ]
+  }
+];
+
 class App extends React.Component {
   state = {
     searchVal: "",
@@ -11,9 +78,13 @@ class App extends React.Component {
   someCounter = 100;
 
   fuse(e, y) {
-    const nested = y === 2 ?
-     [{ name: "typechild.name", weight: 0.4 }, { name: "typechild.vals", weight: 0.3 }] :
-     [{ name: "name", weight: 0.4 }, { name: "vals", weight: 0.2 }];
+    const nested =
+      y === 2
+        ? [
+            { name: "recipes.name", weight: 0.4 },
+            { name: "recipes.ingredients", weight: 0.3 }
+          ]
+        : [{ name: "name", weight: 0.4 }, { name: "ingredients", weight: 0.2 }];
     const threshhold = y === 2 ? 0.3 : 0.3;
     // 2 means it is nested
     var opts = {
@@ -27,10 +98,14 @@ class App extends React.Component {
   }
 
   nestedUniq(e) {
-    const res = _.flow(_.flatMap("typechild"), _.values(), _.uniqBy("name"))(e);
+    const res = _.flow(
+      _.flatMap("recipes"),
+      _.values(),
+      _.uniqBy("name")
+    )(e);
     // THIS will cause an issue IF have two sub-tags with the same name (differing vals). Is this a super rare case? Orange and Orange?
     // COULD do uniqueBy vals instead?
-    // const err = _.flow(_.flatMap("typechild"), _.values(), _.uniqBy("name"))(e)
+    // const err = _.flow(_.flatMap("recipes"), _.values(), _.uniqBy("name"))(e)
     // res.forEach(el => { el.clickOrder = this.someCounter++})
     // console.log("err", res);
     return res;
@@ -44,15 +119,20 @@ class App extends React.Component {
 
     if (searchOn && this.fuse(data).length > 0) {
       output1 = this.fuse(data);
-      output2 = this.fuse(data).filter(e => this.fuse(data)).map(r => r.typechild)[0];
+      output2 = this.fuse(data)
+        .filter(e => this.fuse(data))
+        .map(r => r.recipes)[0];
     } else if (searchOn && this.fuse(data, 2).length > 0) {
       output1 = this.fuse(data, 2);
       output2 = this.fuse(this.nestedUniq(data, 2));
-    } else if (searchOn && this.fuse(data, 2).length === 0 && this.fuse(data).length === 0) {
-      output1 = [{ name: "No Res" }];
-      output2 = [{ name: "No Res" }];
-    } 
-    else {
+    } else if (
+      searchOn &&
+      this.fuse(data, 2).length === 0 &&
+      this.fuse(data).length === 0
+    ) {
+      output1 = [{ name: "No Results!" }];
+      output2 = [{ name: "No Results!" }];
+    } else {
       // data.forEach(el => { el.clickOrder = this.someCounter++*30 })
       output1 = data;
       output2 = this.nestedUniq(data);
@@ -73,60 +153,5 @@ class App extends React.Component {
     );
   }
 }
-
-// User R.assoc and R.over to get nested data
-const data = [
-  {
-    name: "Fruit",
-    vals: "magic",
-    typechild: [
-      {
-        color: "#fff",
-        level: 2,
-        name: "Orange",
-        vals: "diet"
-      },
-      {
-        color: "#fff",
-        level: 3,
-        name: "Apple",
-        vals: "health"
-      }
-    ]
-  },
-  {
-    name: "Vegetable",
-    typechild: [
-      {
-        color: "#fff",
-        level: 2,
-        name: "Potato",
-        vals: "recipe"
-      }
-    ]
-  },
-  {
-    name: "Technology",
-    typechild: [
-      {
-        color: "#fff",
-        level: 2,
-        name: "App",
-        vals: ["ipod", "iphone", "apple"]
-      }
-    ]
-  },
-  {
-    name: "Color",
-    typechild: [
-      {
-        color: "#fff",
-        level: 2,
-        name: "Green",
-        vals: ["paiting", "nature", "rain"]
-      }
-    ]
-  }
-];
 
 render(<App />, document.getElementById("root"));
