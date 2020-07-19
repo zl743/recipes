@@ -6,7 +6,7 @@
   "main": "index.js",
   "dependencies": {
     "fuse.js": "3.0.5",
-    "lodash": "4.17.4",
+    "lodash": "4.17.19",
     "ramda": "0.24.1",
     "react": "15.5.3",
     "react-dom": "15.5.3"
